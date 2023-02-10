@@ -1,6 +1,8 @@
 CAULKING_VERSION=2.0.0 2023-01-26
 GITLEAKS_VERSION=8.8.4
-GITLEAKS_ARTIFACT="gitleaks_${GITLEAKS_VERSION}_darwin_x64.tar.gz"
+# GITLEAKS_VERSION=8.15.3
+# GITLEAKS_ARTIFACT="gitleaks_${GITLEAKS_VERSION}_darwin_x64.tar.gz"
+GITLEAKS_ARTIFACT="gitleaks_${GITLEAKS_VERSION}_linux_x64.tar.gz"
 GITLEAKS_CHECKSUM=509430dada69ee4314068847a8a424d4102defc23fd5714330d36366796feef7
 GITLEAKS_DOWNLOAD_DIR="${HOME}/bin/gitleaks-files"
 NOW=$(shell date)
@@ -15,13 +17,13 @@ GITLEAKS= ${HOME}/bin/gitleaks
 
 INSTALL_TARGETS= ${PATTERNS} ${PRECOMMIT} ${GITLEAKS}
 
-HOMEBREW_PREFIX=$(shell brew config | grep HOMEBREW_PREFIX | awk '{print $$2}')
+# HOMEBREW_PREFIX=$(shell brew config | grep HOMEBREW_PREFIX | awk '{print $$2}')
 
 .PHONY: clean audit global_hooks
 
 install: $(INSTALL_TARGETS) global_hooks
 
-audit: ${HOMEBREW_PREFIX}/bin/pcregrep ${GITLEAKS} $(INSTALL_TARGETS)
+audit: ${GITLEAKS} $(INSTALL_TARGETS)
 	@test "$$(${GITLEAKS} version)" = "${GITLEAKS_VERSION}" || ( echo "ERROR -- RUN: 'make clean install'" && false )
 	@echo ${CAULKING_VERSION}
 	@echo "${ME} / ${NOW}"
@@ -57,8 +59,8 @@ ${PRECOMMIT}: pre-commit.sh ${HOOKS}
 ${GIT_SUPPORT_PATH} ${HOOKS}:
 	mkdir -p $@
 
-${HOMEBREW_PREFIX}/bin/pcregrep:
-	brew install pcre
+# ${HOMEBREW_PREFIX}/bin/pcregrep:
+#	brew install pcre
 
 ${GITLEAKS}:
 	mkdir -p ${GITLEAKS_DOWNLOAD_DIR}
@@ -69,7 +71,7 @@ ${GITLEAKS}:
 	chmod 755 $@
 
 upgrade:
-	brew uninstall gitleaks || rm -f ${GITLEAKS} && rm -f ${HOME}/bin/gitleaks
+	rm -f ${GITLEAKS}
 	make ${GITLEAKS}
 
 FORCE:
